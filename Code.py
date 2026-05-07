@@ -64,7 +64,7 @@ div[data-testid="stButton"] button {
 }
 div[data-testid="stButton"] button:hover {
     border-color: #8B6FBB !important;
-    background: #3D2E5A !important;
+    background: #462980 !important;
     color: #FFFFFF !important;
     transform: translateY(-2px) !important;
 }
@@ -86,7 +86,7 @@ OPTIONS = [
 BEATS = {
     "Rock": [
         ("Scissors", "Rock sat on scissors. Scissors didn't survive. Rock didn't even notice."),
-        ("Fire",     "Rock is literally made of heat. Fire looked at rock and gave up immediately."),
+        ("Fire",     "Rock is literally made with heat. Fire looked at rock and gave up immediately."),
         ("Knife",    "Knife tried to cut rock. Knife is now a spoon. Congratulations, spoon."),
         ("Ice",      "Rock is warmer than ice. That's it. That's the whole reason."),
     ],
@@ -244,7 +244,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-tab1, tab2 = st.tabs(["🤖 vs Bot", "👥 2 Players"])
+tab1, tab2 = st.tabs(["You vs Bot", "👥 2 Players"])
 
 # ═══════════════════════════════════════════════════════════════════════════════
 #  TAB 1 — VS BOT
