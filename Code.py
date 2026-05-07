@@ -94,12 +94,12 @@ BEATS = {
         ("Rock",     "Paper wrapped rock. Rock suffocated. This is apparently how it works."),
         ("Water",    "Paper absorbed water like it had something to prove. Every. Last. Drop."),
         ("Void",     "Paper filled the void. Literally just put paper in it. Done."),
-        ("Magnet",   "Paper jammed the magnet. Like a printer. Magnets fear printers."),
+        ("Magnet",   "Paper jammed the magnet. Like a printer. Magnets fear paper now."),
     ],
     "Scissors": [
         ("Paper",    "Scissors cut paper. The one rule everyone agrees on. Sacred."),
         ("Virus",    "Scissors are stainless steel. Virus tried to infect steel. Virus failed biology."),
-        ("Tornado",  "Scissors spun into the tornado and just... became the tornado. They're one now."),
+        ("Tornado",  "Scissors spun into the tornado and just... vanished. They're one now."),
     ],
     "Fire": [
         ("Paper",    "Paper burned. It was dramatic. Fire felt nothing."),
