@@ -4,7 +4,7 @@ import random
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(page_title="Chaos RPS", page_icon="⚗️", layout="centered")
 
-# ── Session init (Kept at top to prevent lifecycle errors) ────────────────────
+# ── Session init ──────────────────────────────────────────────────────────────
 BOT_TALK = {
     "win": [
         "🤖: 'My calculations predict you will cry about this outcome on Reddit.'",
@@ -60,79 +60,89 @@ def init_2p():
     if "p2_p2wins" not in st.session_state: st.session_state.p2_p2wins = 0
     if "p2_draws" not in st.session_state: st.session_state.p2_draws = 0
 
-# Run initializations immediately so they always exist
 init_vs_bot()
 init_2p()
 
-# ── CSS ───────────────────────────────────────────────────────────────────────
+# ── ULTRASMOOTH CUSTOM UI SHEET ───────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght=400;600;700;900&family=Space+Mono:wght=400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
-html, body, [class*="css"] { font-family: 'Nunito', sans-serif; }
+/* Reset canvas to a high-end dark studio finish */
+html, body, [class*="css"] { 
+    font-family: 'Plus Jakarta Sans', sans-serif; 
+}
 #MainMenu, footer, header { visibility: hidden; }
 
-.stApp { background-color: #1A1625; }
+.stApp { 
+    background: radial-gradient(circle at 50% 0%, #1a1c29 0%, #0f111a 100%);
+}
 
-/* Tabs */
+/* Premium, organic looking Tabs */
 .stTabs [data-baseweb="tab-list"] {
-    background: #251E35;
-    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 20px;
     padding: 6px;
-    gap: 6px;
-    border: 1px solid #3D2E5A;
+    gap: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 .stTabs [data-baseweb="tab"] {
-    font-family: 'Nunito', sans-serif;
-    font-weight: 700;
-    font-size: 15px;
-    color: #9D8FC0;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: #6C728A;
     background: transparent;
-    border-radius: 12px;
+    border-radius: 14px;
     border: none;
-    padding: 10px 28px;
+    padding: 10px 24px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .stTabs [aria-selected="true"] {
-    background: #3D2E5A !important;
-    color: #E8DEFF !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Score pills */
+/* Smooth custom score indicator pills */
 .score-pill {
     display: inline-block;
-    background: #251E35;
-    border: 1px solid #3D2E5A;
-    border-radius: 50px;
-    padding: 6px 20px;
-    font-weight: 700;
-    font-size: 17px;
-    color: #C8B8FF;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 30px;
+    padding: 6px 18px;
+    font-weight: 600;
+    font-size: 15px;
+    color: #A0A5BF;
     margin: 4px;
 }
 
-/* All buttons base style */
+/* Complete Button Overhaul - Removing the 'AI generated block' look */
 div[data-testid="stButton"] button {
-    font-family: 'Nunito', sans-serif !important;
-    font-weight: 700 !important;
-    border-radius: 14px !important;
-    border: 1.5px solid #3D2E5A !important;
-    background: #251E35 !important;
-    color: #D4C8F0 !important;
-    padding: 10px 6px !important;
-    font-size: 13px !important;
-    transition: all 0.15s ease !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-weight: 600 !important;
+    border-radius: 16px !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    background: rgba(20, 24, 41, 0.6) !important;
+    color: #CDD1E4 !important;
+    padding: 12px 8px !important;
+    font-size: 14px !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 div[data-testid="stButton"] button:hover {
-    border-color: #8B6FBB !important;
-    background: #462980 !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
     color: #FFFFFF !important;
     transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25) !important;
+}
+div[data-testid="stButton"] button:active {
+    transform: translateY(0px) !important;
 }
 </style>
 """, unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════════════════
-#  DATA
+#  DATA MATRIX
 # ═══════════════════════════════════════════════════════════════════════════════
 
 OPTIONS = [
@@ -194,7 +204,7 @@ BEATS = {
     "Knife": [
         ("Paper",    "Knife cut paper into confetti. Technically a party now."),
         ("Virus",    "Knife's blade is too clean for virus to grip. Virus slipped off and landed on the floor. Gross."),
-        ("Water",    "Knife sliced straight through water. Water was so surprised it just failed apart."),
+        ("Water",    "Knife sliced straight through water. Water was so surprised it just fell apart."),
     ],
     "Tornado": [
         ("Rock",     "Tornado picked up rock and yeeted it into next Tuesday. Rock did not enjoy this."),
@@ -265,21 +275,21 @@ def rps_outcome(p_idx, b_idx):
     else:
         return "lose", random.choice(FALLBACK_WINS).format(w=bname, l=pname)
 
-# ── Header ────────────────────────────────────────────────────────────────────
+# ── Title Typography ─────────────────────────────────────────────────────────
 st.markdown("""
-<div style='text-align:center; padding:28px 0 8px;'>
-  <div style='font-family:Space Mono,monospace; font-size:2.2rem; font-weight:700;
-              background:linear-gradient(90deg,#C8A8FF,#E8DEFF);
+<div style='text-align:center; padding:32px 0 12px;'>
+  <div style='font-family: \"Plus Jakarta Sans\", sans-serif; font-size:2.4rem; font-weight:800;
+              letter-spacing: -1px; background: linear-gradient(135deg, #FFF 30%, #A2A9CD 100%);
               -webkit-background-clip:text; -webkit-text-fill-color:transparent;'>
     ⚗️ Chaos RPS
   </div>
-  <div style='color:#5A4A7A; font-size:13px; margin-top:6px; font-style:italic;'>
-    15 options. Scientifically dubious. Deeply unserious.
+  <div style='color:#5D627D; font-size:13px; margin-top:4px; font-weight: 500;'>
+    15 choices. Highly controversial logic. Deeply unserious.
   </div>
 </div>
 """, unsafe_allow_html=True)
 
-tab1, tab2 = st.tabs(["You vs Bot", "👥 2 Players"])
+tab1, tab2 = st.tabs(["You vs Bot", "👥 Two Players"])
 
 # ═══════════════════════════════════════════════════════════════════════════════
 #  TAB 1 — VS BOT
@@ -287,44 +297,40 @@ tab1, tab2 = st.tabs(["You vs Bot", "👥 2 Players"])
 with tab1:
     st.markdown("<br>", unsafe_allow_html=True)
 
-    bw = st.session_state.bot_wins
-    bl = st.session_state.bot_losses
-    bd = st.session_state.bot_draws
+    bw, bl, bd = st.session_state.bot_wins, st.session_state.bot_losses, st.session_state.bot_draws
     st.markdown(f"""
-    <div style='text-align:center; margin-bottom:18px;'>
-        <span class='score-pill'>🏆 You: {bw}</span>
-        <span class='score-pill'>🤖 Bot: {bl}</span>
-        <span class='score-pill'>🤝 Draws: {bd}</span>
+    <div style='text-align:center; margin-bottom:20px;'>
+        <span class='score-pill'><strong style='color:#FFF;'>You:</strong> {bw}</span>
+        <span class='score-pill'><strong style='color:#FFF;'>Bot:</strong> {bl}</span>
+        <span class='score-pill'><strong style='color:#6C728A;'>Draws:</strong> {bd}</span>
     </div>
     """, unsafe_allow_html=True)
 
-    # Bot Trash-talk box
+    # Cleaned AI terminal commentary box
     st.markdown(f"""
-    <div style='text-align:center; color:#A294C2; font-family:"Space Mono",monospace; 
-                font-size:13px; background:#211B2E; padding:8px; border-radius:10px; 
-                margin-bottom:15px; border:1px dashed #3D2E5A;'>
+    <div style='text-align:center; color:#8E95B3; font-family:\"JetBrains Mono\", monospace; 
+                font-size:13px; background: rgba(255,255,255,0.02); padding:12px; border-radius:14px; 
+                margin-bottom:18px; border: 1px solid rgba(255, 255, 255, 0.05);'>
         {st.session_state.bot_comment}
     </div>
     """, unsafe_allow_html=True)
 
-    # Dynamic Chaos Event Banner
     if st.session_state.chaos_event:
         st.markdown(f"""
-        <div style='text-align:center; color:#FFB3B3; font-family:"Space Mono",monospace; 
-                    font-size:12px; background:#3D1E1E; padding:6px; border-radius:8px; 
-                    margin-bottom:15px; border:1px solid #6B3A3A;'>
+        <div style='text-align:center; color:#FF9999; font-family:\"JetBrains Mono\", monospace; 
+                    font-size:12px; background: rgba(235, 87, 87, 0.08); padding:8px; border-radius:10px; 
+                    margin-bottom:18px; border: 1px solid rgba(235, 87, 87, 0.15);'>
             {st.session_state.chaos_event}
         </div>
         """, unsafe_allow_html=True)
 
-    # Cheat sheet matrix launcher
-    with st.popover("📖 View Known Matchups (Cheat Sheet)", use_container_width=True):
-        st.markdown("### 🔬 Explicit Matrix Rules")
+    with st.popover("📖 View Known Matchups Matrix", use_container_width=True):
+        st.markdown("### 🔬 Hardcoded Rules")
         for weapon, matchups in BEATS.items():
             targets = ", ".join([t[0] for t in matchups])
-            st.markdown(f"**{weapon}** absolutely destroys: *{targets}*")
+            st.markdown(f"**{weapon}** targets: *{targets}*")
 
-    st.markdown("<p style='text-align:center; color:#5A4A7A; font-size:14px; margin-top:10px;'>Pick your weapon. Any weapon. We don't judge.</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; color:#4E526B; font-size:13px; margin: 12px 0;'>Select an item below to deploy your play.</p>", unsafe_allow_html=True)
 
     chosen = None
     for row in range(5):
@@ -345,7 +351,6 @@ with tab1:
         st.session_state.bot_result = result
         st.session_state.bot_reason = reason
         
-        # Roll a random unfair atmospheric modifier (35% chance)
         if random.random() > 0.65:
             st.session_state.chaos_event = random.choice(CHAOS_MODIFIERS)
         else:
@@ -354,58 +359,53 @@ with tab1:
         if result == "win":
             st.session_state.bot_wins   += 1
             st.session_state.bot_comment = random.choice(BOT_TALK["lose"])
-            st.balloons() # Fire off balloons on victory!
+            st.balloons()
         elif result == "lose":
             st.session_state.bot_losses += 1
             st.session_state.bot_comment = random.choice(BOT_TALK["win"])
             if OPTIONS[bot_idx][1] in ["Void", "Ice"]: 
-                st.snow() # If the bot wins with a cold theme, drop snow!
+                st.snow()
         else:
             st.session_state.bot_draws  += 1
             st.session_state.bot_comment = random.choice(BOT_TALK["draw"])
         st.rerun()
 
     if st.session_state.bot_result is not None:
-        p      = st.session_state.bot_player
-        b      = st.session_state.bot_bot
-        res    = st.session_state.bot_result
-        reason = st.session_state.bot_reason
+        p, b = st.session_state.bot_player, st.session_state.bot_bot
+        res, reason = st.session_state.bot_result, st.session_state.bot_reason
         p_emoji, p_name = OPTIONS[p]
         b_emoji, b_name = OPTIONS[b]
 
         cfg = {
-            "win":  ("#1E2D1E", "#3A6B3A", "🎉 You win!",    "#90EE90"),
-            "lose": ("#2D1E1E", "#6B3A3A", "🤖 Bot wins.",   "#FFB3B3"),
-            "draw": ("#251E35", "#3D2E5A", "🤝 It's a draw!", "#C8B8FF"),
+            "win":  ("rgba(46, 125, 50, 0.08)", "rgba(46, 125, 50, 0.25)", "🎉 You win!", "#81C784"),
+            "lose": ("rgba(198, 40, 40, 0.08)", "rgba(198, 40, 40, 0.25)", "🤖 Bot wins.", "#E57373"),
+            "draw": ("rgba(255, 255, 255, 0.02)", "rgba(255, 255, 255, 0.08)", "🤝 Balanced Matchup.", "#B0B3C6"),
         }
         bg, border, label, lc = cfg[res]
 
         st.markdown(f"""
-        <div style='background:{bg}; border:1.5px solid {border}; border-radius:20px;
-                    padding:28px 24px; text-align:center; margin-top:20px;'>
-            <div style='font-size:3rem; margin-bottom:10px; letter-spacing:10px;'>
-                {p_emoji} <span style='color:#5A4A7A; font-size:1.3rem;'>vs</span> {b_emoji}
+        <div style='background:{bg}; border:1px solid {border}; border-radius:24px;
+                    padding:32px 24px; text-align:center; margin-top:24px;'>
+            <div style='font-size:3.2rem; margin-bottom:12px; letter-spacing:14px; padding-left:14px;'>
+                {p_emoji} {b_emoji}
             </div>
-            <div style='font-size:13px; color:#9D8FC0; margin-bottom:8px;'>
-                You: <strong style='color:#D4C8F0;'>{p_name}</strong> &nbsp;·&nbsp;
-                Bot: <strong style='color:#D4C8F0;'>{b_name}</strong>
+            <div style='font-size:13px; color:#6C728A; margin-bottom:12px;'>
+                You played <strong style='color:#FFF;'>{p_name}</strong> against <strong style='color:#FFF;'>{b_name}</strong>
             </div>
-            <div style='font-size:1.5rem; font-weight:900; color:{lc}; margin:12px 0 16px;
-                        font-family:Space Mono,monospace;'>
+            <div style='font-size:1.4rem; font-weight:800; color:{lc}; margin:12px 0 16px; letter-spacing:-0.5px;'>
                 {label}
             </div>
-            <div style='font-size:13px; color:#9D8FC0; font-style:italic;
-                        background:rgba(255,255,255,0.04); border-radius:12px;
-                        padding:12px 16px; line-height:1.7; text-align:left;'>
+            <div style='font-size:13px; color:#969CB5; line-height:1.6; max-width: 480px; margin: 0 auto;
+                        background: rgba(0,0,0,0.15); border-radius:14px; padding:14px 18px; border: 1px solid rgba(255,255,255,0.02); text-align: left;'>
                 🔬 {reason}
             </div>
         </div>
         """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    c1, c2, c3 = st.columns([1, 2, 1])
+    c1, c2, c3 = st.columns([1, 1.5, 1])
     with c2:
-        if st.button("🔄 Reset Scores", key="bot_reset", use_container_width=True):
+        if st.button("🔄 Reset Environment", key="bot_reset", use_container_width=True):
             st.session_state.bot_wins   = 0
             st.session_state.bot_losses = 0
             st.session_state.bot_draws  = 0
@@ -420,28 +420,25 @@ with tab1:
 with tab2:
     st.markdown("<br>", unsafe_allow_html=True)
 
-    p1w = st.session_state.p2_p1wins
-    p2w = st.session_state.p2_p2wins
-    p2d = st.session_state.p2_draws
+    p1w, p2w, p2d = st.session_state.p2_p1wins, st.session_state.p2_p2wins, st.session_state.p2_draws
     st.markdown(f"""
-    <div style='text-align:center; margin-bottom:18px;'>
-        <span class='score-pill'>🟣 P1: {p1w}</span>
-        <span class='score-pill'>🟡 P2: {p2w}</span>
-        <span class='score-pill'>🤝 Draws: {p2d}</span>
+    <div style='text-align:center; margin-bottom:20px;'>
+        <span class='score-pill'><strong style='color:#9B86FF;'>P1:</strong> {p1w}</span>
+        <span class='score-pill'><strong style='color:#FFD54F;'>P2:</strong> {p2w}</span>
+        <span class='score-pill'><strong style='color:#6C728A;'>Draws:</strong> {p2d}</span>
     </div>
     """, unsafe_allow_html=True)
 
     phase = st.session_state.p2_phase
 
-    # ── PHASE: Player 1 picks ─────────────────────────────────────────────────
     if phase == "p1":
         st.markdown("""
-        <div style='text-align:center; background:#251E35; border:1.5px solid #6B3FA0;
-                    border-radius:16px; padding:16px; margin-bottom:20px;'>
-            <span style='font-size:1.3rem; font-weight:900; color:#C8A8FF;'>
-                🟣 Player 1 — pick your weapon!
+        <div style='text-align:center; background: rgba(155, 134, 255, 0.05); border: 1px solid rgba(155, 134, 255, 0.15);
+                    border-radius:20px; padding:20px; margin-bottom:24px;'>
+            <span style='font-size:1.2rem; font-weight:800; color:#B4A5FF; letter-spacing:-0.5px;'>
+                🟣 Player One — Choose your weapon
             </span><br>
-            <span style='font-size:12px; color:#5A4A7A;'>Player 2: no peeking 👀</span>
+            <span style='font-size:12px; color:#5D627D;'>Keep the display away from Player Two's line of sight 👀</span>
         </div>
         """, unsafe_allow_html=True)
 
@@ -461,36 +458,34 @@ with tab2:
             st.session_state.p2_phase  = "pass"
             st.rerun()
 
-    # ── PHASE: Pass the device ────────────────────────────────────────────────
     elif phase == "pass":
         st.markdown("""
-        <div style='text-align:center; background:#1E1830; border:2px solid #6B3FA0;
-                    border-radius:20px; padding:40px 24px; margin: 10px 0 24px;'>
-            <div style='font-size:3.5rem; margin-bottom:16px;'>🙈</div>
-            <div style='font-size:1.2rem; font-weight:700; color:#C8A8FF; margin-bottom:8px;'>
-                Player 1 has locked in their pick.
+        <div style='text-align:center; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+                    border-radius:24px; padding:44px 24px; margin: 12px 0 24px;'>
+            <div style='font-size:3.2rem; margin-bottom:14px;'>🙈</div>
+            <div style='font-size:1.1rem; font-weight:700; color:#FFF; margin-bottom:6px; letter-spacing:-0.3px;'>
+                Selection Cached Successfully.
             </div>
-            <div style='font-size:13px; color:#5A4A7A; margin-bottom:24px;'>
-                Pass the device to Player 2!
+            <div style='font-size:13px; color:#6C728A; margin-bottom:24px;'>
+                Hand the device completely over to Player Two.
             </div>
         </div>
         """, unsafe_allow_html=True)
 
-        c1, c2, c3 = st.columns([1, 3, 1])
+        c1, c2, c3 = st.columns([1, 2.5, 1])
         with c2:
-            if st.button("🟡  Player 2 — I'm ready! Hand it over!", key="pass_btn", use_container_width=True):
+            if st.button("🟡 Player Two Is Ready", key="pass_btn", use_container_width=True):
                 st.session_state.p2_phase = "p2"
                 st.rerun()
 
-    # ── PHASE: Player 2 picks ─────────────────────────────────────────────────
     elif phase == "p2":
         st.markdown("""
-        <div style='text-align:center; background:#1E2520; border:1.5px solid #4A7A5A;
-                    border-radius:16px; padding:16px; margin-bottom:20px;'>
-            <span style='font-size:1.3rem; font-weight:900; color:#FFD700;'>
-                🟡 Player 2 — pick your weapon!
+        <div style='text-align:center; background: rgba(255, 213, 79, 0.05); border: 1px solid rgba(255, 213, 79, 0.15);
+                    border-radius:20px; padding:20px; margin-bottom:24px;'>
+            <span style='font-size:1.2rem; font-weight:800; color:#FFE082; letter-spacing:-0.5px;'>
+                🟡 Player Two — Choose your counter
             </span><br>
-            <span style='font-size:12px; color:#5A4A7A;'>Player 1 already locked in. No pressure. 😈</span>
+            <span style='font-size:12px; color:#5D627D;'>Player One has committed. No backtracks permitted. 😈</span>
         </div>
         """, unsafe_allow_html=True)
 
@@ -517,49 +512,43 @@ with tab2:
             st.session_state.p2_phase = "result"
             st.rerun()
 
-    # ── PHASE: Show result ────────────────────────────────────────────────────
     elif phase == "result":
-        p1i    = st.session_state.p2_p1pick
-        p2i    = st.session_state.p2_p2pick
-        res    = st.session_state.p2_result
-        reason = st.session_state.p2_reason
+        p1i, p2i = st.session_state.p2_p1pick, st.session_state.p2_p2pick
+        res, reason = st.session_state.p2_result, st.session_state.p2_reason
         p1_emoji, p1_name = OPTIONS[p1i]
         p2_emoji, p2_name = OPTIONS[p2i]
 
         winner_cfg = {
-            "win":  ("🟣 Player 1 wins!", "#C8A8FF", "#1E1A2E", "#3D2E5A"),
-            "lose": ("🟡 Player 2 wins!", "#FFD700", "#1E1E14", "#4A4A20"),
-            "draw": ("🤝 It's a draw!",   "#D4C8F0", "#1E1830", "#3D2E5A"),
+            "win":  ("🟣 Player One Secures Win!", "#B4A5FF", "rgba(155, 134, 255, 0.06)", "rgba(155, 134, 255, 0.2)"),
+            "lose": ("🟡 Player Two Secures Win!", "#FFE082", "rgba(255, 213, 79, 0.06)", "rgba(255, 213, 79, 0.2)"),
+            "draw": ("🤝 Tactical Draw.", "#CDD1E4", "rgba(255, 255, 255, 0.02)", "rgba(255, 255, 255, 0.08)"),
         }
         label, lc, bg, border = winner_cfg[res]
 
         st.markdown(f"""
-        <div style='background:{bg}; border:1.5px solid {border}; border-radius:20px;
-                    padding:30px 24px; text-align:center; margin-top:8px;'>
-            <div style='font-size:3rem; margin-bottom:10px; letter-spacing:10px;'>
-                {p1_emoji} <span style='color:#5A4A7A; font-size:1.3rem;'>vs</span> {p2_emoji}
+        <div style='background:{bg}; border:1px solid {border}; border-radius:24px;
+                    padding:32px 24px; text-align:center; margin-top:8px;'>
+            <div style='font-size:3.2rem; margin-bottom:12px; letter-spacing:14px; padding-left:14px;'>
+                {p1_emoji} {p2_emoji}
             </div>
-            <div style='font-size:13px; color:#9D8FC0; margin-bottom:8px;'>
-                🟣 P1: <strong style='color:#C8A8FF;'>{p1_name}</strong>
-                &nbsp;·&nbsp;
-                🟡 P2: <strong style='color:#FFD700;'>{p2_name}</strong>
+            <div style='font-size:13px; color:#6C728A; margin-bottom:12px;'>
+                🟣 P1: <strong style='color:#B4A5FF;'>{p1_name}</strong> &nbsp;·&nbsp; 
+                🟡 P2: <strong style='color:#FFE082;'>{p2_name}</strong>
             </div>
-            <div style='font-size:1.6rem; font-weight:900; color:{lc};
-                        margin:14px 0 18px; font-family:Space Mono,monospace;'>
+            <div style='font-size:1.4rem; font-weight:800; color:{lc}; margin:14px 0 18px; letter-spacing:-0.5px;'>
                 {label}
             </div>
-            <div style='font-size:13px; color:#9D8FC0; font-style:italic;
-                        background:rgba(255,255,255,0.04); border-radius:12px;
-                        padding:12px 16px; line-height:1.7; text-align:left;'>
+            <div style='font-size:13px; color:#969CB5; line-height:1.6; max-width: 480px; margin: 0 auto;
+                        background: rgba(0,0,0,0.15); border-radius:14px; padding:14px 18px; border: 1px solid rgba(255,255,255,0.02); text-align: left;'>
                 🔬 {reason}
             </div>
         </div>
         """, unsafe_allow_html=True)
 
         st.markdown("<br>", unsafe_allow_html=True)
-        c1, c2, c3 = st.columns([1, 2, 1])
+        c1, c2, c3 = st.columns([1, 1.5, 1])
         with c2:
-            if st.button("▶️ Play Again", key="p2_again", use_container_width=True):
+            if st.button("▶️ Next Match", key="p2_again", use_container_width=True):
                 st.session_state.p2_phase  = "p1"
                 st.session_state.p2_p1pick = None
                 st.session_state.p2_p2pick = None
@@ -567,11 +556,10 @@ with tab2:
                 st.session_state.p2_reason = ""
                 st.rerun()
 
-    # Reset scores (always visible)
     st.markdown("<br>", unsafe_allow_html=True)
-    c1, c2, c3 = st.columns([1, 2, 1])
+    c1, c2, c3 = st.columns([1, 1.5, 1])
     with c2:
-        if st.button("🔄 Reset Scores", key="p2_reset", use_container_width=True):
+        if st.button("🔄 Clear Standings", key="p2_reset", use_container_width=True):
             st.session_state.p2_p1wins = 0
             st.session_state.p2_p2wins = 0
             st.session_state.p2_draws  = 0
@@ -583,7 +571,7 @@ with tab2:
 
 # ── Footer ────────────────────────────────────────────────────────────────────
 st.markdown("""
-<p style='text-align:center; color:#3D2E5A; font-size:11px; margin-top:28px;'>
-    All explanations are scientifically accurate. We checked. Briefly.
+<p style='text-align:center; color:#3A3E54; font-size:11px; margin-top:36px; font-weight:500;'>
+    Hand-crafted interfaces beat template code. Most of the time.
 </p>
 """, unsafe_allow_html=True)
