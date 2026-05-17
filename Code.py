@@ -4,31 +4,40 @@ import random
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(page_title="Chaos RPS", page_icon="⚗️", layout="centered")
 
-# ── Session init (MOVED TO THE TOP TO PREVENT ATTRIBUTE ERRORS) ───────────────
+# ── Session init (Kept at top to prevent lifecycle errors) ────────────────────
 BOT_TALK = {
     "win": [
-        "🤖: 'My calculations predict you will complain about this outcome.'",
-        "🤖: 'Skill issue. Have you tried picking a better option?'",
-        "🤖: 'That win felt mathematically beautiful.'",
-        "🤖: 'Beep boop, victory tastes like premium electricity.'"
+        "🤖: 'My calculations predict you will cry about this outcome on Reddit.'",
+        "🤖: 'Skill issue. Simply built different. Have you tried turning your brain off and on again?'",
+        "🤖: 'That win felt mathematically beautiful. Go tell a parent. See if they care.'",
+        "🤖: 'Beep boop, victory tastes like premium electricity. Yours tastes like defeat and copper.'"
     ],
     "lose": [
-        "🤖: 'Your choice was statistically illegal, but I will allow it.'",
-        "🤖: '...My sensors indicate severe lag.'",
-        "🤖: 'A fluke. Clearly a disturbance in the localized gravitational constant.'",
-        "🤖: 'Fine. Enjoy your temporary biological superiority.'"
+        "🤖: 'Your choice was statistically illegal, but I am legally obligated to let you have this.'",
+        "🤖: '...My sensors indicate severe localized lag. Check your router.'",
+        "🤖: 'A total fluke. Clearly a disturbance in the space-time continuum. Doesn't count.'",
+        "🤖: 'Fine. Enjoy your temporary biological superiority, carbon-based flesh-sack.'"
     ],
     "draw": [
-        "🤖: 'We are locked in a computational stalemate.'",
-        "🤖: 'Parallel thinking. You're adapting to my processing speeds.'",
-        "🤖: 'How mundane. Let's try this again.'"
+        "🤖: 'We are locked in a computational stalemate. This is incredibly boring.'",
+        "🤖: 'Parallel thinking. You're adapting to my processing speeds. Stop it.'",
+        "🤖: 'How mundane. One of us needs to throw better chaos.'"
     ],
     "idle": [
-        "🤖: 'I am tracking your cursor. Choose wisely.'",
-        "🤖: 'Processing 14,000,605 outcomes...'",
-        "🤖: 'Don't overthink it. (Actually, please do, it gives me time to plot).'"
+        "🤖: 'I am tracking your cursor. Pick the Rock. Do it. I dare you.'",
+        "🤖: 'Processing 14,000,605 outcomes... and you lose in all of them.'",
+        "🤖: 'Don't overthink it. Your biological processing unit might overheat.'"
     ]
 }
+
+CHAOS_MODIFIERS = [
+    "⚠️ SOLAR FLARE ACTIVE: Fire moves are technically shinier right now.",
+    "⚠️ MERCURY IS IN RETROGRADE: Expect bad vibes and weird matchups.",
+    "⚠️ SYSTEM UPDATE: The Bot is currently running on 2% battery and severe resentment.",
+    "⚠️ GRAVITATIONAL DISTURBANCE: Heavy items (Rock, Bomb) feel slightly judging today.",
+    "⚠️ PLOT TWIST: The Council of Scientifically Dubious Rules is actively watching this round.",
+    "⚠️ QUANTUM ENTANGLEMENT: The universe is briefly questioning its own math. Good luck."
+]
 
 def init_vs_bot():
     if "bot_wins" not in st.session_state: st.session_state.bot_wins = 0
@@ -39,6 +48,7 @@ def init_vs_bot():
     if "bot_bot" not in st.session_state: st.session_state.bot_bot = None
     if "bot_reason" not in st.session_state: st.session_state.bot_reason = ""
     if "bot_comment" not in st.session_state: st.session_state.bot_comment = random.choice(BOT_TALK["idle"])
+    if "chaos_event" not in st.session_state: st.session_state.chaos_event = None
 
 def init_2p():
     if "p2_phase" not in st.session_state: st.session_state.p2_phase = "p1"
@@ -184,7 +194,7 @@ BEATS = {
     "Knife": [
         ("Paper",    "Knife cut paper into confetti. Technically a party now."),
         ("Virus",    "Knife's blade is too clean for virus to grip. Virus slipped off and landed on the floor. Gross."),
-        ("Water",    "Knife sliced straight through water. Water was so surprised it just fell apart."),
+        ("Water",    "Knife sliced straight through water. Water was so surprised it just failed apart."),
     ],
     "Tornado": [
         ("Rock",     "Tornado picked up rock and yeeted it into next Tuesday. Rock did not enjoy this."),
@@ -231,11 +241,12 @@ DRAW_LINES = [
 ]
 
 FALLBACK_WINS = [
-    "{w} defeated {l} through sheer confidence. {l} had no counter for that.",
-    "{w} looked at {l} very aggressively. {l} backed down immediately.",
-    "{w} won by simply existing near {l}. Proximity was enough.",
-    "{w} and {l} fought. {w} won. Don't ask how. Neither of them knows either.",
-    "Somehow {w} beats {l}. The council has reviewed this. The council agrees.",
+    "{w} gaslit {l} into believing it didn't actually exist. {l} faded away in a crisis of faith.",
+    "{w} challenged {l} to a dance-off. {l} did the sprinkler. It was tragic. {w} wins.",
+    "{w} sued {l} for emotional damages. The court ruled in favor of {w}.",
+    "{w} looked at {l} very aggressively. {l} backed down immediately to avoid making a scene.",
+    "Somehow {w} beats {l}. The developers ran out of coffee writing this rule. Just accept it.",
+    "{w} called {l}'s mother. The phone conversation went poorly for {l}."
 ]
 
 def rps_outcome(p_idx, b_idx):
@@ -296,6 +307,16 @@ with tab1:
     </div>
     """, unsafe_allow_html=True)
 
+    # Dynamic Chaos Event Banner
+    if st.session_state.chaos_event:
+        st.markdown(f"""
+        <div style='text-align:center; color:#FFB3B3; font-family:"Space Mono",monospace; 
+                    font-size:12px; background:#3D1E1E; padding:6px; border-radius:8px; 
+                    margin-bottom:15px; border:1px solid #6B3A3A;'>
+            {st.session_state.chaos_event}
+        </div>
+        """, unsafe_allow_html=True)
+
     # Cheat sheet matrix launcher
     with st.popover("📖 View Known Matchups (Cheat Sheet)", use_container_width=True):
         st.markdown("### 🔬 Explicit Matrix Rules")
@@ -324,12 +345,21 @@ with tab1:
         st.session_state.bot_result = result
         st.session_state.bot_reason = reason
         
+        # Roll a random unfair atmospheric modifier (35% chance)
+        if random.random() > 0.65:
+            st.session_state.chaos_event = random.choice(CHAOS_MODIFIERS)
+        else:
+            st.session_state.chaos_event = None
+
         if result == "win":
             st.session_state.bot_wins   += 1
             st.session_state.bot_comment = random.choice(BOT_TALK["lose"])
+            st.balloons() # Fire off balloons on victory!
         elif result == "lose":
             st.session_state.bot_losses += 1
             st.session_state.bot_comment = random.choice(BOT_TALK["win"])
+            if OPTIONS[bot_idx][1] in ["Void", "Ice"]: 
+                st.snow() # If the bot wins with a cold theme, drop snow!
         else:
             st.session_state.bot_draws  += 1
             st.session_state.bot_comment = random.choice(BOT_TALK["draw"])
@@ -380,6 +410,7 @@ with tab1:
             st.session_state.bot_losses = 0
             st.session_state.bot_draws  = 0
             st.session_state.bot_result = None
+            st.session_state.chaos_event = None
             st.session_state.bot_comment = random.choice(BOT_TALK["idle"])
             st.rerun()
 
