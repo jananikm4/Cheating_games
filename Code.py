@@ -4,6 +4,56 @@ import random
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(page_title="Chaos RPS", page_icon="⚗️", layout="centered")
 
+# ── Session init (MOVED TO THE TOP TO PREVENT ATTRIBUTE ERRORS) ───────────────
+BOT_TALK = {
+    "win": [
+        "🤖: 'My calculations predict you will complain about this outcome.'",
+        "🤖: 'Skill issue. Have you tried picking a better option?'",
+        "🤖: 'That win felt mathematically beautiful.'",
+        "🤖: 'Beep boop, victory tastes like premium electricity.'"
+    ],
+    "lose": [
+        "🤖: 'Your choice was statistically illegal, but I will allow it.'",
+        "🤖: '...My sensors indicate severe lag.'",
+        "🤖: 'A fluke. Clearly a disturbance in the localized gravitational constant.'",
+        "🤖: 'Fine. Enjoy your temporary biological superiority.'"
+    ],
+    "draw": [
+        "🤖: 'We are locked in a computational stalemate.'",
+        "🤖: 'Parallel thinking. You're adapting to my processing speeds.'",
+        "🤖: 'How mundane. Let's try this again.'"
+    ],
+    "idle": [
+        "🤖: 'I am tracking your cursor. Choose wisely.'",
+        "🤖: 'Processing 14,000,605 outcomes...'",
+        "🤖: 'Don't overthink it. (Actually, please do, it gives me time to plot).'"
+    ]
+}
+
+def init_vs_bot():
+    if "bot_wins" not in st.session_state: st.session_state.bot_wins = 0
+    if "bot_losses" not in st.session_state: st.session_state.bot_losses = 0
+    if "bot_draws" not in st.session_state: st.session_state.bot_draws = 0
+    if "bot_result" not in st.session_state: st.session_state.bot_result = None
+    if "bot_player" not in st.session_state: st.session_state.bot_player = None
+    if "bot_bot" not in st.session_state: st.session_state.bot_bot = None
+    if "bot_reason" not in st.session_state: st.session_state.bot_reason = ""
+    if "bot_comment" not in st.session_state: st.session_state.bot_comment = random.choice(BOT_TALK["idle"])
+
+def init_2p():
+    if "p2_phase" not in st.session_state: st.session_state.p2_phase = "p1"
+    if "p2_p1pick" not in st.session_state: st.session_state.p2_p1pick = None
+    if "p2_p2pick" not in st.session_state: st.session_state.p2_p2pick = None
+    if "p2_result" not in st.session_state: st.session_state.p2_result = None
+    if "p2_reason" not in st.session_state: st.session_state.p2_reason = ""
+    if "p2_p1wins" not in st.session_state: st.session_state.p2_p1wins = 0
+    if "p2_p2wins" not in st.session_state: st.session_state.p2_p2wins = 0
+    if "p2_draws" not in st.session_state: st.session_state.p2_draws = 0
+
+# Run initializations immediately so they always exist
+init_vs_bot()
+init_2p()
+
 # ── CSS ───────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
@@ -134,7 +184,7 @@ BEATS = {
     "Knife": [
         ("Paper",    "Knife cut paper into confetti. Technically a party now."),
         ("Virus",    "Knife's blade is too clean for virus to grip. Virus slipped off and landed on the floor. Gross."),
-        ("Water",    "Knife sliced straight through water. Water was so surprised it just failed apart."),
+        ("Water",    "Knife sliced straight through water. Water was so surprised it just fell apart."),
     ],
     "Tornado": [
         ("Rock",     "Tornado picked up rock and yeeted it into next Tuesday. Rock did not enjoy this."),
@@ -188,31 +238,6 @@ FALLBACK_WINS = [
     "Somehow {w} beats {l}. The council has reviewed this. The council agrees.",
 ]
 
-BOT_TALK = {
-    "win": [
-        "🤖: 'My calculations predict you will complain about this outcome.'",
-        "🤖: 'Skill issue. Have you tried picking a better option?'",
-        "🤖: 'That win felt mathematically beautiful.'",
-        "🤖: 'Beep boop, victory tastes like premium electricity.'"
-    ],
-    "lose": [
-        "🤖: 'Your choice was statistically illegal, but I will allow it.'",
-        "🤖: '...My sensors indicate severe lag.'",
-        "🤖: 'A fluke. Clearly a disturbance in the localized gravitational constant.'",
-        "🤖: 'Fine. Enjoy your temporary biological superiority.'"
-    ],
-    "draw": [
-        "🤖: 'We are locked in a computational stalemate.'",
-        "🤖: 'Parallel thinking. You're adapting to my processing speeds.'",
-        "🤖: 'How mundane. Let's try this again.'"
-    ],
-    "idle": [
-        "🤖: 'I am tracking your cursor. Choose wisely.'",
-        "🤖: 'Processing 14,000,605 outcomes...'",
-        "🤖: 'Don't overthink it. (Actually, please do, it gives me time to plot).'"
-    ]
-}
-
 def rps_outcome(p_idx, b_idx):
     if p_idx == b_idx:
         return "draw", random.choice(DRAW_LINES)
@@ -222,41 +247,12 @@ def rps_outcome(p_idx, b_idx):
         if beaten == bname:
             return "win", reason
     for beaten, reason in BEATS.get(bname, []):
-        if beaten == bname: # Handled potential inverted structure cleanly below
-            pass
-    for beaten, reason in BEATS.get(bname, []):
         if beaten == pname:
             return "lose", reason
     if random.random() > 0.5:
         return "win",  random.choice(FALLBACK_WINS).format(w=pname, l=bname)
     else:
         return "lose", random.choice(FALLBACK_WINS).format(w=bname, l=pname)
-
-# ── Session init ──────────────────────────────────────────────────────────────
-def init_vs_bot():
-    st.session_state.bot_result  = None
-    st.session_state.bot_player  = None
-    st.session_state.bot_bot     = None
-    st.session_state.bot_reason  = ""
-    st.session_state.bot_comment = random.choice(BOT_TALK["idle"])
-    st.session_state.bot_wins    = st.session_state.get("bot_wins", 0)
-    st.session_state.bot_losses  = st.session_state.get("bot_losses", 0)
-    st.session_state.bot_draws   = st.session_state.get("bot_draws", 0)
-
-def init_2p():
-    st.session_state.p2_phase    = "p1"
-    st.session_state.p2_p1pick   = None
-    st.session_state.p2_p2pick   = None
-    st.session_state.p2_result   = None
-    st.session_state.p2_reason   = ""
-    st.session_state.p2_p1wins   = st.session_state.get("p2_p1wins", 0)
-    st.session_state.p2_p2wins   = st.session_state.get("p2_p2wins", 0)
-    st.session_state.p2_draws    = st.session_state.get("p2_draws", 0)
-
-if "bot_result" not in st.session_state:
-    init_vs_bot()
-if "p2_phase" not in st.session_state:
-    init_2p()
 
 # ── Header ────────────────────────────────────────────────────────────────────
 st.markdown("""
@@ -328,7 +324,6 @@ with tab1:
         st.session_state.bot_result = result
         st.session_state.bot_reason = reason
         
-        # Map comments cleanly based on the reciprocal perspective
         if result == "win":
             st.session_state.bot_wins   += 1
             st.session_state.bot_comment = random.choice(BOT_TALK["lose"])
