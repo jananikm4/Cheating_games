@@ -7,7 +7,7 @@ st.set_page_config(page_title="Chaos RPS", page_icon="⚗️", layout="centered"
 # ── CSS ───────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght=400;600;700;900&family=Space+Mono:wght=400;700&display=swap');
 
 html, body, [class*="css"] { font-family: 'Nunito', sans-serif; }
 #MainMenu, footer, header { visibility: hidden; }
@@ -134,7 +134,7 @@ BEATS = {
     "Knife": [
         ("Paper",    "Knife cut paper into confetti. Technically a party now."),
         ("Virus",    "Knife's blade is too clean for virus to grip. Virus slipped off and landed on the floor. Gross."),
-        ("Water",    "Knife sliced straight through water. Water was so surprised it just fell apart."),
+        ("Water",    "Knife sliced straight through water. Water was so surprised it just failed apart."),
     ],
     "Tornado": [
         ("Rock",     "Tornado picked up rock and yeeted it into next Tuesday. Rock did not enjoy this."),
@@ -188,6 +188,31 @@ FALLBACK_WINS = [
     "Somehow {w} beats {l}. The council has reviewed this. The council agrees.",
 ]
 
+BOT_TALK = {
+    "win": [
+        "🤖: 'My calculations predict you will complain about this outcome.'",
+        "🤖: 'Skill issue. Have you tried picking a better option?'",
+        "🤖: 'That win felt mathematically beautiful.'",
+        "🤖: 'Beep boop, victory tastes like premium electricity.'"
+    ],
+    "lose": [
+        "🤖: 'Your choice was statistically illegal, but I will allow it.'",
+        "🤖: '...My sensors indicate severe lag.'",
+        "🤖: 'A fluke. Clearly a disturbance in the localized gravitational constant.'",
+        "🤖: 'Fine. Enjoy your temporary biological superiority.'"
+    ],
+    "draw": [
+        "🤖: 'We are locked in a computational stalemate.'",
+        "🤖: 'Parallel thinking. You're adapting to my processing speeds.'",
+        "🤖: 'How mundane. Let's try this again.'"
+    ],
+    "idle": [
+        "🤖: 'I am tracking your cursor. Choose wisely.'",
+        "🤖: 'Processing 14,000,605 outcomes...'",
+        "🤖: 'Don't overthink it. (Actually, please do, it gives me time to plot).'"
+    ]
+}
+
 def rps_outcome(p_idx, b_idx):
     if p_idx == b_idx:
         return "draw", random.choice(DRAW_LINES)
@@ -197,9 +222,11 @@ def rps_outcome(p_idx, b_idx):
         if beaten == bname:
             return "win", reason
     for beaten, reason in BEATS.get(bname, []):
+        if beaten == bname: # Handled potential inverted structure cleanly below
+            pass
+    for beaten, reason in BEATS.get(bname, []):
         if beaten == pname:
             return "lose", reason
-    # Undefined combo — coin flip with funny fallback
     if random.random() > 0.5:
         return "win",  random.choice(FALLBACK_WINS).format(w=pname, l=bname)
     else:
@@ -211,6 +238,7 @@ def init_vs_bot():
     st.session_state.bot_player  = None
     st.session_state.bot_bot     = None
     st.session_state.bot_reason  = ""
+    st.session_state.bot_comment = random.choice(BOT_TALK["idle"])
     st.session_state.bot_wins    = st.session_state.get("bot_wins", 0)
     st.session_state.bot_losses  = st.session_state.get("bot_losses", 0)
     st.session_state.bot_draws   = st.session_state.get("bot_draws", 0)
@@ -263,7 +291,23 @@ with tab1:
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<p style='text-align:center; color:#5A4A7A; font-size:14px;'>Pick your weapon. Any weapon. We don't judge.</p>", unsafe_allow_html=True)
+    # Bot Trash-talk box
+    st.markdown(f"""
+    <div style='text-align:center; color:#A294C2; font-family:"Space Mono",monospace; 
+                font-size:13px; background:#211B2E; padding:8px; border-radius:10px; 
+                margin-bottom:15px; border:1px dashed #3D2E5A;'>
+        {st.session_state.bot_comment}
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Cheat sheet matrix launcher
+    with st.popover("📖 View Known Matchups (Cheat Sheet)", use_container_width=True):
+        st.markdown("### 🔬 Explicit Matrix Rules")
+        for weapon, matchups in BEATS.items():
+            targets = ", ".join([t[0] for t in matchups])
+            st.markdown(f"**{weapon}** absolutely destroys: *{targets}*")
+
+    st.markdown("<p style='text-align:center; color:#5A4A7A; font-size:14px; margin-top:10px;'>Pick your weapon. Any weapon. We don't judge.</p>", unsafe_allow_html=True)
 
     chosen = None
     for row in range(5):
@@ -283,9 +327,17 @@ with tab1:
         st.session_state.bot_bot    = bot_idx
         st.session_state.bot_result = result
         st.session_state.bot_reason = reason
-        if result == "win":    st.session_state.bot_wins   += 1
-        elif result == "lose": st.session_state.bot_losses += 1
-        else:                  st.session_state.bot_draws  += 1
+        
+        # Map comments cleanly based on the reciprocal perspective
+        if result == "win":
+            st.session_state.bot_wins   += 1
+            st.session_state.bot_comment = random.choice(BOT_TALK["lose"])
+        elif result == "lose":
+            st.session_state.bot_losses += 1
+            st.session_state.bot_comment = random.choice(BOT_TALK["win"])
+        else:
+            st.session_state.bot_draws  += 1
+            st.session_state.bot_comment = random.choice(BOT_TALK["draw"])
         st.rerun()
 
     if st.session_state.bot_result is not None:
@@ -333,6 +385,7 @@ with tab1:
             st.session_state.bot_losses = 0
             st.session_state.bot_draws  = 0
             st.session_state.bot_result = None
+            st.session_state.bot_comment = random.choice(BOT_TALK["idle"])
             st.rerun()
 
 # ═══════════════════════════════════════════════════════════════════════════════
